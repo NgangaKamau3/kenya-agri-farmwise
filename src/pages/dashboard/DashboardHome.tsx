@@ -1,48 +1,103 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { 
   Scan, TrendingUp, ShoppingBag, CloudSun, 
-  ArrowUpRight, ArrowDownRight, MessageSquare, Calendar
+  ArrowUpRight, ArrowDownRight, MessageSquare, Calendar,
+  Store, Heart, Package
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
-const quickActions = [
+const farmerQuickActions = [
   { icon: Scan, label: 'Scan Crop', path: '/dashboard/disease-detection', color: 'bg-secondary/20 text-secondary' },
   { icon: TrendingUp, label: 'View Prices', path: '/dashboard/market-prices', color: 'bg-accent/20 text-accent' },
   { icon: ShoppingBag, label: 'Marketplace', path: '/dashboard/marketplace', color: 'bg-primary/20 text-primary' },
   { icon: CloudSun, label: 'Weather', path: '/dashboard/weather', color: 'bg-secondary/20 text-secondary' },
 ];
 
-const stats = [
+const buyerQuickActions = [
+  { icon: Store, label: 'Browse Products', path: '/dashboard/marketplace', color: 'bg-primary/20 text-primary' },
+  { icon: TrendingUp, label: 'Market Prices', path: '/dashboard/market-prices', color: 'bg-accent/20 text-accent' },
+  { icon: CloudSun, label: 'Weather', path: '/dashboard/weather', color: 'bg-secondary/20 text-secondary' },
+  { icon: Heart, label: 'Saved Items', path: '/dashboard/marketplace', color: 'bg-destructive/20 text-destructive' },
+];
+
+const farmerStats = [
   { label: 'Active Listings', value: '3', change: '+1', trend: 'up' },
   { label: 'Buyer Messages', value: '5', change: '+2', trend: 'up' },
   { label: 'Profile Views', value: '28', change: '-5', trend: 'down' },
   { label: 'Avg. Price/kg', value: 'KES 45', change: '+7%', trend: 'up' },
 ];
 
-const recentActivity = [
+const buyerStats = [
+  { label: 'Orders Placed', value: '2', change: '+1', trend: 'up' },
+  { label: 'Saved Sellers', value: '8', change: '+3', trend: 'up' },
+  { label: 'Products Viewed', value: '42', change: '+12', trend: 'up' },
+  { label: 'Avg. Savings', value: '15%', change: '+5%', trend: 'up' },
+];
+
+const farmerActivity = [
   { icon: MessageSquare, text: 'New message from Grace Wanjiku about your maize listing', time: '10 min ago' },
   { icon: TrendingUp, text: 'Maize prices increased by 7% in Nakuru', time: '1 hour ago' },
   { icon: CloudSun, text: 'Weather alert: Heavy rain expected tomorrow', time: '2 hours ago' },
   { icon: Calendar, text: 'Reminder: Harvest tomatoes this week', time: '5 hours ago' },
 ];
 
+const buyerActivity = [
+  { icon: Package, text: 'Your order from Kamau Farms is ready for pickup', time: '30 min ago' },
+  { icon: TrendingUp, text: 'Price drop on potatoes - now KES 35/kg', time: '1 hour ago' },
+  { icon: Store, text: 'New products available from your saved sellers', time: '3 hours ago' },
+  { icon: MessageSquare, text: 'Reply from Njeri Greens about bulk order', time: '5 hours ago' },
+];
+
 const DashboardHome = () => {
+  const [userRole, setUserRole] = useState<'farmer' | 'buyer' | null>(null);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata) {
+        setUserRole(user.user_metadata.role as 'farmer' | 'buyer' || 'farmer');
+        setUserName(user.user_metadata.full_name?.split(' ')[0] || 'there');
+      }
+    };
+    getUser();
+  }, []);
+
+  const isBuyer = userRole === 'buyer';
+  const quickActions = isBuyer ? buyerQuickActions : farmerQuickActions;
+  const stats = isBuyer ? buyerStats : farmerStats;
+  const recentActivity = isBuyer ? buyerActivity : farmerActivity;
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Karibu, John! 👋
+            Karibu, {userName}! 👋
           </h1>
           <p className="text-muted-foreground">
-            Here's what's happening with your farm today.
+            {isBuyer 
+              ? "Find fresh produce directly from farmers today."
+              : "Here's what's happening with your farm today."
+            }
           </p>
         </div>
         <Link to="/dashboard/marketplace">
           <Button variant="accent">
-            <ShoppingBag className="w-4 h-4" />
-            Create Listing
+            {isBuyer ? (
+              <>
+                <Store className="w-4 h-4" />
+                Browse Products
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-4 h-4" />
+                Create Listing
+              </>
+            )}
           </Button>
         </Link>
       </div>
@@ -76,7 +131,7 @@ const DashboardHome = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {quickActions.map((action) => (
             <Link
-              key={action.path}
+              key={action.path + action.label}
               to={action.path}
               className="flex flex-col items-center p-6 bg-card rounded-2xl border border-border hover:shadow-elevated hover:-translate-y-1 transition-all duration-200"
             >
