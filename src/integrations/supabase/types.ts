@@ -14,7 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          id: string
+          full_name: string
+          phone: string | null
+          role: 'farmer' | 'buyer'
+          county: string | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          full_name: string
+          phone?: string | null
+          role?: 'farmer' | 'buyer'
+          county?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          phone?: string | null
+          role?: 'farmer' | 'buyer'
+          county?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +57,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: 'farmer' | 'buyer'
     }
     CompositeTypes: {
       [_ in never]: never

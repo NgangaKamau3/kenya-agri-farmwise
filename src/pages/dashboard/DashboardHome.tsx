@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { 
-  Scan, TrendingUp, ShoppingBag, CloudSun, 
+import {
+  Scan, TrendingUp, ShoppingBag, CloudSun,
   ArrowUpRight, ArrowDownRight, MessageSquare, Calendar,
   Store, Heart, Package
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const farmerQuickActions = [
   { icon: Scan, label: 'Scan Crop', path: '/dashboard/disease-detection', color: 'bg-secondary/20 text-secondary' },
@@ -51,20 +50,21 @@ const buyerActivity = [
 ];
 
 const DashboardHome = () => {
-  const [userRole, setUserRole] = useState<'farmer' | 'buyer' | null>(null);
-  const [userName, setUserName] = useState('');
+  const { profile, loading } = useUserProfile();
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata) {
-        setUserRole(user.user_metadata.role as 'farmer' | 'buyer' || 'farmer');
-        setUserName(user.user_metadata.full_name?.split(' ')[0] || 'there');
-      }
-    };
-    getUser();
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
+  const userRole = profile?.role || 'farmer';
+  const userName = profile?.full_name?.split(' ')[0] || 'there';
   const isBuyer = userRole === 'buyer';
   const quickActions = isBuyer ? buyerQuickActions : farmerQuickActions;
   const stats = isBuyer ? buyerStats : farmerStats;
@@ -79,7 +79,7 @@ const DashboardHome = () => {
             Karibu, {userName}! 👋
           </h1>
           <p className="text-muted-foreground">
-            {isBuyer 
+            {isBuyer
               ? "Find fresh produce directly from farmers today."
               : "Here's what's happening with your farm today."
             }
