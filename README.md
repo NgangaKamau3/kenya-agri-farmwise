@@ -116,24 +116,7 @@ gcloud run deploy kenya-agri-farmwise --image gcr.io/YOUR_PROJECT_ID/frontend --
 
 See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
 
-## 📊 Impact & Metrics
 
-### Target Market
-- **10M+ smallholder farmers** in Kenya
-- **$8.5B agricultural market**
-- **78% smartphone penetration**
-
-### Projected Impact (Year 1)
-- 👥 100,000 farmers onboarded
-- 💵 $12M additional income for farmers
-- 🌾 30% reduction in crop losses
-- 🏪 5,000 direct buyer connections
-
-### Revenue Model
-- Freemium (basic features free)
-- Premium subscriptions: $2/month
-- Transaction fees: 2% on marketplace
-- **Year 1 Revenue:** $480,000
 
 ## 🛠️ Technology Stack
 
